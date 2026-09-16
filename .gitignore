@@ -1,0 +1,22 @@
+# Credentials — these belong in each person's ~/.vogel/, never in the repo
+*.env
+.env*
+mongo.env
+**/secrets/
+
+# Dependencies — managers run `npm install` locally
+node_modules/
+package-lock.json
+
+# Gathered data must never be committed
+*.csv
+*.ndjson
+**/session-*/
+**/vogel-data-gather-output/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

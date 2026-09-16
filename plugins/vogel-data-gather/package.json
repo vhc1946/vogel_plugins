@@ -1,0 +1,18 @@
+{
+  "name": "vogel-data-gather",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node scripts backing the vogel-data-gather Cowork plugin.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "preflight": "node scripts/preflight.js",
+    "catalog": "node scripts/catalog.js",
+    "selftest": "node scripts/selftest.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.9.0"
+  }
+}
