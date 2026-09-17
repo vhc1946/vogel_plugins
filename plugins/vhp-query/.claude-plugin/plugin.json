@@ -1,13 +1,8 @@
 {
-  "manifest_version": 3,
-  "name": "VHP Query",
+  "name": "vhp-query",
   "version": "0.1.11",
   "description": "Query VHP projects and tickets. Schema-aware queries with caching. See SKILL.md for full docs.",
-  "author": "Vogel Heating & Plumbing",
-  "permissions": [
-    "storage"
-  ],
-  "icons": {
-    "128": "icons/icon.svg"
+  "author": {
+    "name": "VHP Dev Team"
   }
 }
