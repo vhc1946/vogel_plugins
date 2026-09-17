@@ -77,12 +77,13 @@ When using the vhp-query skill in the browser:
 ### POST /login
 Authenticate with credentials, get session token.
 
-**Request:**
-```json
-{
-  "user": "username",
-  "pswrd": "password"
-}
+**Header:**
+```
+x-vhp-auth:{ 
+  user: MURRY,
+  pswrd: vogel1223
+},
+credentials: 'include'
 ```
 
 **Response (success):**
@@ -110,8 +111,7 @@ Requires valid session token in header.
 
 **Header:**
 ```
-X-Session-Token: <token>,
-credentials: 'include'
+X-Session-Token: <token>
 ```
 
 Or query param:
@@ -128,8 +128,7 @@ Clear session token.
 
 **Header:**
 ```
-X-Session-Token: <token>,
-credentials: 'include'
+X-Session-Token: <token>
 ```
 
 **Response:**
@@ -153,9 +152,9 @@ credentials: 'include'
 ```json
 {
   "success": true,
-  "user": "username",
-  "expiresAt": "2026-09-17T...",
-  "expiresIn": 3600
+  "token": "...",
+  "user": {...},
+  "expiresIn": 86400
 }
 ```
 
