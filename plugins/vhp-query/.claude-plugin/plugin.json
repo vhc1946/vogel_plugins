@@ -4,5 +4,7 @@
   "description": "Query VHP projects and tickets. Schema-aware queries with caching. See SKILL.md for full docs.",
   "author": {
     "name": "VHP Dev Team"
-  }
+  },
+  "main": "../index.js",
+  "type": "skill"
 }
