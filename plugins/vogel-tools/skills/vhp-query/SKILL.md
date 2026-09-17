@@ -613,7 +613,8 @@ Input: query object, token, proxy base URL = `${user_config.proxy_url}` (set per
    encodedOptions = encodeURIComponent(JSON.stringify(options))
 2. Build GET URL:
    url = "${user_config.proxy_url}" + collection.route + "?db=" + collection.db + 
-         "&collect=" + collection.collect + "&method=QUERY&options=" + encodedOptions
+         "&collect=" + collection.collect + "&method=QUERY&options=" + encodedOptions +
+         "&token=" + token
 3. Fetch using WebFetch (browser-compatible):
    WebFetch(url, "Extract result data from {success, result}")
 4. Parse response JSON: {success, result}
