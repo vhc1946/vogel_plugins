@@ -1,22 +1,22 @@
 {
-  "name": "vogel",
-  "owner": {
-    "name": "VHP Dev Team",
-    "email": "johnw@vogelheating.com"
-  },
-  "metadata": {
-    "description": "Internal Claude plugins for Vogel Heating & Cooling.",
-    "version": "1.0.0"
-  },
-  "plugins": [
-    {
-      "name": "vogel-data-gather",
-      "source": "./plugins/vogel-data-gather",
-      "description": "Pulls company data out of the Vogel MongoDB database into a Cowork session as JSON and CSV, ready to ask questions against or build a report from.",
-      "version": "0.1.0",
-      "author": {
-        "name": "VHP Dev Team"
-      }
-    }
-  ]
+    "name": "vogel",
+    "owner": {
+        "name": "VHP Dev Team",
+        "email": "johnw@vogelheating.com"
+    },
+    "metadata": {
+        "description": "Internal Claude plugins for Vogel Heating & Cooling.",
+        "version": "1.0.0"
+    },
+    "plugins": [
+        {
+            "name": "vogel-data-gather",
+            "source": "./plugins/vogel-data-gather",
+            "description": "Pulls company data out of the Vogel MongoDB database into a Cowork session as JSON and CSV, ready to ask questions against or build a report from.",
+            "version": "0.1.11",
+            "author": {
+                "name": "VHP Dev Team"
+            }
+        }
+    ]
 }
