@@ -6,7 +6,7 @@ The proxy server (`vapi-pluginrp`) now requires authentication before allowing q
 
 ### Environment Variables
 
-Update `/home/christianvogel/vhp/project-vapi/vapi-pluginrp/.env`:
+Update `<your vapi-pluginrp checkout>/.env`:
 
 ```env
 PORT=8000
@@ -19,7 +19,7 @@ ADMIN_URL=http://localhost:3001
 ### Starting the Server
 
 ```bash
-cd /home/christianvogel/vhp/project-vapi/vapi-pluginrp
+cd <your vapi-pluginrp checkout>
 npm install
 node server.js
 # Listening on http://localhost:8000
@@ -31,7 +31,7 @@ node server.js
 
 **1. Login and save token:**
 ```bash
-node ~/.claude/skills/vhp-query/login.js <username> <password>
+node <your vapi-pluginrp checkout>/login.js <username> <password>
 ```
 
 Returns:
@@ -48,19 +48,19 @@ Token is automatically saved to `~/.claude/vhp-query-token` (valid 24 hours).
 
 **2. Use token for queries:**
 ```bash
-node ~/.claude/skills/vhp-query/fetch.js projects Replacement projects '{}' '["id","name"]'
+node <your vapi-pluginrp checkout>/fetch.js projects Replacement projects '{}' '["id","name"]'
 ```
 
 The token is automatically loaded from `~/.claude/vhp-query-token`.
 
 **3. Check session:**
 ```bash
-node ~/.claude/skills/vhp-query/login.js --check
+node <your vapi-pluginrp checkout>/login.js --check
 ```
 
 **4. Logout:**
 ```bash
-node ~/.claude/skills/vhp-query/login.js --logout
+node <your vapi-pluginrp checkout>/login.js --logout
 ```
 
 ### Browser (claude.ai web)

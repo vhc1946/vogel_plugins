@@ -1,77 +1,92 @@
-# Vogel Claude Marketplace
+# Vogel Claude Plugins
 
-Internal Claude plugins for Vogel Heating & Cooling. Managers add this
-marketplace once; after that, updates arrive with one command instead of a
-folder over email.
+Internal Claude plugins for Vogel Heating and Cooling. Managers add this
+marketplace once; after that, every change the dev team pushes to `main` reaches
+them automatically.
 
 ## Repository layout
 
 ```
-vogel-claude-marketplace/
-  .claude-plugin/
-    marketplace.json          the catalog Claude reads
-  plugins/
-    vogel-data-gather/        one folder per plugin, each with its own
-                              .claude-plugin/plugin.json
-  README.md
+.claude-plugin/
+  marketplace.json               the catalog Claude reads
+plugins/
+  vogel-tools/                   the one plugin managers install
+    .claude-plugin/plugin.json
+    skills/
+      vhp-query/SKILL.md         one folder per skill
 ```
 
-`marketplace.json` lists each plugin and where it lives in this repo. Adding a
-plugin means adding its folder under `plugins/` and adding one entry to that
-list.
+One plugin, many skills. Adding a skill later does not make managers install
+anything new.
 
-## For managers — one-time setup
+## For managers - one-time setup
 
-In Claude:
+In Claude Code:
 
 ```
-/plugin marketplace add https://github.com/YOUR-ORG/vogel-claude-marketplace.git
-/plugin install vogel-data-gather@vogel
+/plugin marketplace add vhc1946/vogel_plugins
+/plugin install vogel-tools@vogel
 ```
 
-Then follow the plugin's own README for anything it needs — the data gathering
-plugin needs Node.js and a credentials file.
+Claude will ask once for the **VHP query proxy URL**. Enter the address of the
+`vapi-pluginrp` server (`http://localhost:8000` if you run it yourself). It is
+stored for you and never asked again.
+
+Then use it by asking for data normally, or invoke it directly:
+
+```
+/vogel-tools:vhp-query show me tickets from Steve in dept 350 last week
+```
+
+If you use Claude in the browser (claude.ai / Cowork) rather than Claude Code,
+you do not run these commands - an org owner pushes the plugin to you through
+**claude.ai > Organization settings > Plugins**.
 
 ## Getting updates
+
+Nothing to do. Claude checks the marketplace in the background and picks up new
+commits at session start. To force a refresh:
 
 ```
 /plugin marketplace update vogel
 ```
 
-That pulls the latest version of every Vogel plugin. Run it when the dev team
-says there is an update, or any time something is not behaving.
+## For the dev team - shipping a change
 
-## Access
+1. Edit under `plugins/vogel-tools/`.
+2. Commit and push to `main`.
 
-This repo is private, so each person needs read access to it: either their
-GitHub account added to the repo, or Git Credential Manager already signed in on
-their machine (which it usually is on a Vogel laptop). Sort this out once at
-install time — it is the thing that buys you never hand-delivering plugin files
-again.
+That is the whole procedure. Every manager gets it on their next session.
 
-## For the dev team — shipping a change
+> **Do not add a `version` field** to `marketplace.json` or `plugin.json`.
+> With no version set, Claude resolves the version from the commit SHA, so each
+> push is an update. The moment a `version` string is pinned, Claude caches that
+> version and **silently ignores every later commit** until someone bumps it.
+> That is exactly what broke this repo before.
 
-1. Edit the plugin under `plugins/<plugin-name>/`.
-2. Bump `version` in that plugin's `.claude-plugin/plugin.json`, and in its entry
-   in `marketplace.json` — they should match.
-3. Add a `CHANGELOG.md` entry in the plugin folder.
-4. Commit and push to `main`.
-5. Tell managers to run `/plugin marketplace update vogel`.
+### Adding a new skill
 
-Nobody re-runs setup and nobody re-enters credentials. Credentials live outside
-the plugin in each person's own `~/.vogel/` folder, so an update never touches
-them.
+```
+mkdir -p plugins/vogel-tools/skills/<skill-name>
+```
 
-### Adding a new collection to vogel-data-gather
+Write a `SKILL.md` in it with YAML frontmatter (`name`, `description`, and
+`allowed-tools` if it needs restricting), commit, push. Managers pick it up as
+`/vogel-tools:<skill-name>` with no install step.
 
-Drop a file in `plugins/vogel-data-gather/schemas/`, bump the version, push.
-That is the whole procedure — the contract is in that folder's `README.md`. No
-change to the skill, no change to any script.
+Check your work before pushing:
+
+```bash
+claude plugin validate ./plugins/vogel-tools --strict
+claude plugin validate .
+claude --plugin-dir ./plugins/vogel-tools       # try the skill in a live session
+```
 
 ### Never commit
 
-- Connection strings, passwords, or `.env` files of any kind.
-- `node_modules/` (managers run `npm install` locally).
+- Connection strings, passwords, tokens, or `.env` files of any kind. This repo
+  is public.
+- `node_modules/`.
 - Any gathered data, CSV, or JSON export.
 
 A `.gitignore` covering these is in the repo root.

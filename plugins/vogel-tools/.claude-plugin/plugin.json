@@ -1,0 +1,17 @@
+{
+  "name": "vogel-tools",
+  "description": "Vogel internal tools for managers. Includes vhp-query for pulling project and ticket data out of the VHP database.",
+  "author": {
+    "name": "VHP Dev Team"
+  },
+  "repository": "https://github.com/vhc1946/vogel_plugins",
+  "userConfig": {
+    "proxy_url": {
+      "type": "string",
+      "title": "VHP query proxy URL",
+      "description": "Base URL of the vapi-pluginrp proxy server, e.g. http://localhost:8000",
+      "default": "http://localhost:8000",
+      "required": true
+    }
+  }
+}

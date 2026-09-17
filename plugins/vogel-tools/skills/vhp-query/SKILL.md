@@ -2,7 +2,6 @@
 name: vhp-query
 description: "Query VHP projects and tickets. Login once (stores 24hr token in context). Schema-aware queries, caches results in session."
 allowed-tools: WebFetch
-browser-compatible: true
 ---
 
 # VHP Dataset Query
@@ -609,12 +608,11 @@ Input: filters, collection.schema, projection
 ### Procedure: Execute Query (Browser-Compatible via GET)
 
 ```
-Input: query object, token, PROXY_BASE_URL (default http://localhost:8000)
-1. URL-encode options JSON:
+Input: query object, token, proxy base URL = `${user_config.proxy_url}` (set per user at plugin install)
    options = {query: {...}, projection: [...]}
    encodedOptions = encodeURIComponent(JSON.stringify(options))
 2. Build GET URL:
-   url = PROXY_BASE_URL + collection.route + "?db=" + collection.db + 
+   url = "${user_config.proxy_url}" + collection.route + "?db=" + collection.db + 
          "&collect=" + collection.collect + "&method=QUERY&options=" + encodedOptions
 3. Fetch using WebFetch (browser-compatible):
    WebFetch(url, "Extract result data from {success, result}")
@@ -672,6 +670,5 @@ Before executing query:
 
 ## Requirements
 
-- **Proxy server:** Must be running at `PROXY_BASE_URL` (default: `http://localhost:8000`)
-- **Proxy returns:** Maps (with embedded schemas) on `/login` for skill to cache in context
+- **Proxy server:** Must be running and reachable at `${user_config.proxy_url}` — the URL each user entered when installing the plugin
 - **Skill stores:** Token, user context, maps, and query cache in conversation context (no file I/O)
