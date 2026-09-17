@@ -11,7 +11,7 @@
     "plugins": [
         {
             "name": "vhp-query",
-            "source": "./plugins/vhp-query",
+            "source": "../plugins/vhp-query",
             "description": "Pulls company data out of the Vogel MongoDB database into a Cowork session as JSON and CSV, ready to ask questions against or build a report from.",
             "version": "0.1.11",
             "author": {
