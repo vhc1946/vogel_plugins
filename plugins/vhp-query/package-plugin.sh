@@ -1,7 +1,7 @@
 #!/bin/bash
 # Package vhp-query for browser plugin distribution
 
-VERSION="0.1.0"
+VERSION="0.1.11"
 OUTPUT_FILE="vhp-query-v${VERSION}.zip"
 
 echo "📦 Packaging VHP Query Browser Plugin v${VERSION}"
