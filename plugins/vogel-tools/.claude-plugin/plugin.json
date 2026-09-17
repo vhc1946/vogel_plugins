@@ -10,7 +10,7 @@
       "type": "string",
       "title": "VHP query proxy URL",
       "description": "Base URL of the vapi-pluginrp proxy server, e.g. http://localhost:8000",
-      "default": "http://localhost:8000",
+      "default": "http://dev.vhpportal.com/plugin",
       "required": true
     }
   }
