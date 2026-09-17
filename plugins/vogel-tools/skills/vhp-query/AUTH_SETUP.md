@@ -110,7 +110,8 @@ Requires valid session token in header.
 
 **Header:**
 ```
-X-Session-Token: <token>
+X-Session-Token: <token>,
+credentials: 'include'
 ```
 
 Or query param:
@@ -127,7 +128,8 @@ Clear session token.
 
 **Header:**
 ```
-X-Session-Token: <token>
+X-Session-Token: <token>,
+credentials: 'include'
 ```
 
 **Response:**
@@ -143,7 +145,8 @@ Check current session info.
 
 **Header:**
 ```
-X-Session-Token: <token>
+X-Session-Token: <token>,
+credentials: 'include'
 ```
 
 **Response:**
