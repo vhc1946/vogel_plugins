@@ -4,12 +4,11 @@
     "name": "VHP Dev Team",
     "email": "johnw@vogelheating.com"
   },
-  "metadata": {
-    "description": "Internal Claude plugins for Vogel Heating and Cooling."
-  },
+  "description": "Internal Claude plugins for Vogel Heating and Cooling.",
   "plugins": [
     {
       "name": "vogel-tools",
+      "version": "2.0.0",
       "source": "./plugins/vogel-tools",
       "description": "Vogel internal tools for managers. Includes vhp-query for pulling project and ticket data out of the VHP database.",
       "author": {

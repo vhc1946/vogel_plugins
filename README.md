@@ -1,8 +1,8 @@
 # Vogel Claude Plugins
 
-Internal Claude plugins for Vogel Heating and Cooling. Managers add this
-marketplace once; after that, every change the dev team pushes to `main` reaches
-them automatically.
+Internal Claude plugins for Vogel Heating and Cooling. The team receives this
+plugin through the org library; the dev team publishes a release when a change is
+ready to go out.
 
 ## Repository layout
 
@@ -28,18 +28,45 @@ locations; it does not object to extra folders or to binary files.
 One plugin, many skills. Adding a skill later does not make managers install
 anything new.
 
-## For managers - one-time setup
+## How the plugin reaches people
 
-In Claude Code:
+There are two distribution paths and **they behave differently**. Knowing which
+one you are on explains everything about when you see a change.
+
+### Org library - everyone
+
+An org owner publishes the plugin through
+**claude.ai > Organization settings > Plugins**. Managers run no commands; it
+simply appears, in Claude Code and in the browser alike.
+
+This path ships a **snapshot** taken at publish time. It does not follow `main`.
+Pushing a commit does not reach anyone until someone publishes a release - see
+*Shipping a release* below.
+
+### Local marketplace - dev/author only
+
+For fast iteration while building a skill:
 
 ```
 /plugin marketplace add vhc1946/vogel_plugins
-/plugin install vogel-tools@vogel
+/plugin install vogel-tools@vogel_plugins
 ```
 
-Claude will ask once for the **VHP query proxy URL**. Enter the address of the
+This path clones the repo and resolves the version from the manifest. Force a
+refresh with:
+
+```
+/plugin marketplace update vogel_plugins
+```
+
+Managers do not need this. Keep it to the dev team so there is only one story
+about what "current" means.
+
+## Configuration
+
+Claude asks once for the **VHP query proxy URL**. Enter the address of the
 `vapi-pluginrp` server (`http://localhost:8000` if you run it yourself). It is
-stored for you and never asked again.
+stored and never asked again.
 
 Then use it by asking for data normally, or invoke it directly:
 
@@ -47,31 +74,57 @@ Then use it by asking for data normally, or invoke it directly:
 /vogel-tools:vhp-query show me tickets from Steve in dept 350 last week
 ```
 
-If you use Claude in the browser (claude.ai / Cowork) rather than Claude Code,
-you do not run these commands - an org owner pushes the plugin to you through
-**claude.ai > Organization settings > Plugins**.
-
-## Getting updates
-
-Nothing to do. Claude checks the marketplace in the background and picks up new
-commits at session start. To force a refresh:
+## For the dev team - shipping a release
 
 ```
-/plugin marketplace update vogel
+1. Edit under plugins/vogel-tools/.
+2. Bump "version" in BOTH manifests:
+     plugins/vogel-tools/.claude-plugin/plugin.json
+     .claude-plugin/marketplace.json      (the vogel-tools entry)
+3. Update the canary in plugins/vogel-tools/skills/vhp-query/SKILL.md
+     <!-- release: vX.Y.Z -->
+4. claude plugin validate ./plugins/vogel-tools --strict
+   claude plugin validate .
+5. git commit -am "Release vX.Y.Z: <what changed>" && git push
+6. cd plugins/vogel-tools && claude plugin tag --push
+7. claude.ai > Organization settings > Plugins > vogel_plugins > refresh
+8. Verify (below).
 ```
 
-## For the dev team - shipping a change
+**Step 7 is the step that reaches your team.** Steps 1-6 alone change nothing for
+them. A push to `main` is not a publish.
 
-1. Edit under `plugins/vogel-tools/`.
-2. Commit and push to `main`.
+### Versioning - read before changing it
 
-That is the whole procedure. Every manager gets it on their next session.
+The `version` field is what makes a release visible and what tells Claude an
+update exists. Two rules, and they pull in opposite directions:
 
-> **Do not add a `version` field** to `marketplace.json` or `plugin.json`.
-> With no version set, Claude resolves the version from the commit SHA, so each
-> push is an update. The moment a `version` string is pinned, Claude caches that
-> version and **silently ignores every later commit** until someone bumps it.
-> That is exactly what broke this repo before.
+- **Bump it on every release.** If you edit a skill and push without bumping,
+  local-marketplace consumers keep the old copy **forever, with no error and no
+  log line**. That silent freeze is what broke this repo before.
+- **Never leave it stale.** Step 6 is the guard: `claude plugin tag` refuses when
+  the two manifests disagree on the version, when the tree is dirty, or when the
+  tag already exists. Forgetting to bump therefore produces a loud
+  *"tag already exists"* rather than silence.
+
+While iterating, do not test through the installed copy - use
+`claude --plugin-dir ./plugins/vogel-tools` so you are not waiting on a release.
+
+### Verifying a release actually landed
+
+Check delivered **content**, never a status message. A sync can report success
+and a download can report "1 downloaded" while shipping the identical stale
+bundle - that has happened here. Do not clear caches before verifying; the stale
+cache is the evidence.
+
+In `AppData\Roaming\Claude\local-agent-mode-sessions\<session>\<sub>\rpm\`:
+
+1. The delivered `.claude-plugin/plugin.json` shows the new `version`.
+2. `grep -r 'release: vX.Y.Z'` on the delivered plugin directory hits.
+3. `manifest.json` shows an `updatedAt` newer than the previous release.
+
+Then have one teammate confirm the change in a fresh session. Nothing short of a
+second machine proves distribution.
 
 ### Adding a new skill
 
@@ -80,8 +133,8 @@ mkdir -p plugins/vogel-tools/skills/<skill-name>
 ```
 
 Write a `SKILL.md` in it with YAML frontmatter (`name`, `description`, and
-`allowed-tools` if it needs restricting), commit, push. Managers pick it up as
-`/vogel-tools:<skill-name>` with no install step.
+`allowed-tools` if it needs restricting). It ships with the next release as
+`/vogel-tools:<skill-name>` - managers install nothing new.
 
 Check your work before pushing:
 

@@ -4,6 +4,8 @@ description: "Query VHP projects and tickets. Login once (stores 24hr token in c
 allowed-tools: WebFetch
 ---
 
+<!-- release: v2.0.0 -->
+
 # VHP Dataset Query
 
 Query Projects and Tickets from MongoDB. First login saves a 24-hour token and user context (companies, techs, estimators). Subsequent queries use cached token. Schema-validated query building ensures correct field names and projections.

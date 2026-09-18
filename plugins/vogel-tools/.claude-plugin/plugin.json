@@ -1,5 +1,6 @@
 {
   "name": "vogel-tools",
+  "version": "2.0.0",
   "description": "Vogel internal tools for managers. Includes vhp-query for pulling project and ticket data out of the VHP database.",
   "author": {
     "name": "VHP Dev Team"
