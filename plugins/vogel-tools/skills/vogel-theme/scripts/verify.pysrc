@@ -1,0 +1,318 @@
+# =====================================================================
+# vogel-theme verify
+#
+# Static gate on a built page. Run inline:
+#
+#   python -c "
+#   OUT = r'<the built .html>'
+#   $(cat "$SKILL/scripts/verify.pysrc")"
+#
+# Exits non-zero on any failure and prints what to fix. This gate checks
+# what a file can prove on its own. It does NOT prove the page looks or
+# prints correctly - the browser pass in SKILL.md does that, and it is
+# not optional either.
+# =====================================================================
+import io, os, re, sys
+
+# ---------------------------------------------------------------------
+# The palette. This list and the :root block in assets/vogel-theme.css
+# are the two places a colour exists. Adding a colour means editing both
+# - deliberately. The RULE is "the palette is closed and every tint is
+# rgba() over a member"; this is only its membership.
+# ---------------------------------------------------------------------
+PALETTE = {
+    '#0F4577',  # navy
+    '#CF152D',  # red
+    '#1D679B',  # blue-mid
+    '#2889C4',  # blue-bright
+    '#A7DBFF',  # blue-pale
+    '#434343',  # ink
+    '#74777D',  # gray
+    '#FF3E23',  # red-bright
+    '#FFFFFF',
+    '#000000',
+}
+
+# Tokens that cannot carry body text on white. Each entry lists the
+# selectors where using it as a `color:` has been checked and is fine.
+# A new use must be added here on purpose, with the background it sits
+# on, rather than slipping through.
+COLOR_ALLOW = {
+    '--v-gray': [
+        '.eyebrow',       # 11px 700 condensed micro-label, on white; the
+        '.tile-label',    # value beside it restates the content
+        '.bar-labels',
+        '.qr-cap',
+        '.empty',
+    ],
+    '--v-blue-pale': [
+        '.help a',        # on navy: 6.4:1
+    ],
+    '--v-blue-bright': [],
+    '--v-red-bright': [],
+}
+
+FONT_HOSTS = ('fonts.googleapis.com', 'fonts.gstatic.com')
+
+fail = []
+warns = []
+
+
+def bad(msg):
+    fail.append(msg)
+
+
+def warn(msg):
+    warns.append(msg)
+
+
+def strip_comments(t):
+    return re.sub(r'/\*.*?\*/', ' ', t, flags=re.S)
+
+
+# ---------------------------------------------------------------------
+# 0. Encoding. PowerShell 5.1 Get-Content decodes as cp1252 and produces
+#    mojibake; a page round-tripped through it fails here.
+# ---------------------------------------------------------------------
+raw = io.open(OUT, 'rb').read()
+try:
+    page = raw.decode('utf-8')
+except UnicodeDecodeError as e:
+    sys.exit('VERIFY FAILED: %s is not valid UTF-8 (%s).\nIt was probably '
+             'round-tripped through PowerShell 5.1 Get-Content. Read and '
+             'write this file with Python or the Bash tool only.' % (OUT, e))
+if raw.startswith(b'\xef\xbb\xbf'):
+    bad('File starts with a UTF-8 BOM. Write with encoding="utf-8", not '
+        '"utf-8-sig".')
+
+styles = re.findall(r'<style[^>]*>(.*?)</style>', page, re.S)
+inline_styles = re.findall(r'\sstyle="([^"]*)"', page)
+css_text = '\n'.join(styles + inline_styles)
+# Comments are stripped for every CSS scan below: a commented-out colour
+# must not fail the palette lock, and this stylesheet explains its own
+# rules in prose that would otherwise trip the very scans that enforce
+# them (section 10 literally contains the words "display:none").
+css_clean = strip_comments(css_text)
+
+if not styles:
+    bad('No <style> block. The stylesheet is always inlined, never linked.')
+
+# ---------------------------------------------------------------------
+# 1. Palette lock. Only CSS is scanned, so href="#acc-1" fragments (which
+#    are valid hex characters) cannot false-positive.
+# ---------------------------------------------------------------------
+hexes = set(h.upper() for h in re.findall(r'#[0-9a-fA-F]{3,8}\b', css_clean))
+short = sorted(h for h in hexes if len(h) == 4)
+if short:
+    bad('Shorthand hex is not allowed - write all six digits so the palette '
+        'lock can see it: %s' % ', '.join(short))
+extra = sorted(h for h in hexes if len(h) == 7 and h not in PALETTE)
+if extra:
+    bad('Colour(s) outside the palette: %s\n     The palette is closed. Every '
+        'tint, hover, hairline and wash is rgba() over a palette colour. If '
+        'this colour is genuinely new to the brand, add it to :root in '
+        'vogel-theme.css AND to PALETTE in verify.pysrc.' % ', '.join(extra))
+
+# ---------------------------------------------------------------------
+# 2. Text-colour roles for the tokens that fail contrast on white.
+# ---------------------------------------------------------------------
+for m in re.finditer(r'(?ms)^([^{}@/][^{}]*?)\{([^{}]*)\}', css_clean):
+    selector = ' '.join(m.group(1).split())
+    body = m.group(2)
+    for decl in re.finditer(r'(?<![-\w])color\s*:\s*var\(\s*(--[\w-]+)', body):
+        tok = decl.group(1)
+        if tok in COLOR_ALLOW:
+            ok = any(a in selector for a in COLOR_ALLOW[tok])
+            if not ok:
+                bad('%s is used as a text colour in "%s". On white it does not '
+                    'clear 4.5:1 (see references/palette.md). Check what it '
+                    'actually sits on; if the contrast is fine there, add that '
+                    'selector to COLOR_ALLOW in verify.pysrc.' % (tok, selector))
+
+# ---------------------------------------------------------------------
+# 3. Zero JavaScript.
+# ---------------------------------------------------------------------
+if re.search(r'<script\b', page, re.I):
+    bad('The page contains a <script>. The switcher is a radio group and the '
+        'accordion is checkboxes, both pure CSS. One line of inline JS setting '
+        'element.style.display beats every print rule short of !important.')
+handlers = sorted(set(re.findall(r'\son[a-z]+\s*=', page, re.I)))
+if handlers:
+    bad('Inline event handler(s): %s' % ', '.join(h.strip() for h in handlers))
+if re.search(r'(?:href|src)\s*=\s*["\']\s*javascript:', page, re.I):
+    bad('A javascript: URL is present.')
+if re.search(r'<details\b', page, re.I):
+    bad('<details> is out: a closed <details> cannot be reliably force-opened '
+        'by CSS, because browsers apply content-visibility to the slot. That '
+        'breaks printing. Use the .acc-item checkbox pattern.')
+
+# ---------------------------------------------------------------------
+# 4. Offline integrity. Only the webfont may come from the network, and
+#    every image must already be embedded.
+# ---------------------------------------------------------------------
+# Only LOADED resources count: any src=, and href= on a <link>. An
+# <a href="https://..."> is a hyperlink the reader may follow, not
+# something the page fetches - flagging those would ban linking out,
+# which is the opposite of useful on a page meant to be printed.
+loaded = re.findall(r'\bsrc\s*=\s*["\'](https?://[^"\']+)', page, re.I)
+loaded += re.findall(r'<link\b[^>]*\bhref\s*=\s*["\'](https?://[^"\']+)', page, re.I)
+for url in loaded:
+    if not any(h in url for h in FONT_HOSTS):
+        bad('External resource: %s\n     A built page loads nothing from the '
+            'network but the webfont, which has a full fallback stack.' % url)
+for src in re.findall(r'<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)', page, re.I):
+    if not src.startswith('data:'):
+        bad('<img src="%s"> is not embedded. Base64 the logo - single file, '
+            'always.' % src[:60])
+if re.search(r'@import\b', css_clean):
+    bad('@import in the CSS pulls a second request at render time. Inline it.')
+if re.search(r"url\(\s*['\"]?(?!data:)(?:https?:)?//", css_clean):
+    bad('The CSS references a remote url(). Embed it or drop it.')
+
+# ---------------------------------------------------------------------
+# 5. The print invariant. THE most important structural check.
+#    Nothing may be hidden outside a media block, because the print
+#    context must reveal every panel and every accordion answer with no
+#    override at all. Hide globally and un-hide in print and you need
+#    !important, and the one rule you forget silently drops content from
+#    the printout.
+# ---------------------------------------------------------------------
+bare_hides = []
+for chunk in styles:
+    # Comments must go first: this stylesheet documents the rule in prose
+    # ("...display:none, so they stay keyboard-focusable..."), and a naive
+    # scan would flag its own explanation.
+    chunk = strip_comments(chunk)
+    stack = []        # 'at' for @media/@page/@supports, 'rule' otherwise
+    preludes = []
+    pos = 0
+    for m in re.finditer(r'[{}]', chunk):
+        seg = chunk[pos:m.start()]
+        pos = m.end()
+        if m.group(0) == '{':
+            prelude = seg.strip()
+            stack.append('at' if prelude.startswith('@') else 'rule')
+            preludes.append(prelude)
+        else:
+            if stack and stack[-1] == 'rule' and 'at' not in stack:
+                if re.search(r'display\s*:\s*none', seg):
+                    sel = ' '.join(preludes[-1].split())[:70]
+                    bare_hides.append(sel or '(unknown selector)')
+            if stack:
+                stack.pop()
+                preludes.pop()
+
+if bare_hides:
+    bad('display:none outside any @media block:\n     %s\n     Move it into '
+        '@media screen. Nothing hidden in the print context means printing '
+        'reveals everything with no override - that invariant is what keeps '
+        'content from silently vanishing from a printout.'
+        % '\n     '.join(bare_hides))
+
+if re.search(r'\[hidden\][^{}]*\{[^{}]*display\s*:\s*revert', css_clean):
+    bad('[hidden] { display: revert } does NOT reveal the element - '
+        'display:none for [hidden] originates in the UA stylesheet, so revert '
+        'returns it to none. Use display: block.')
+
+# ---------------------------------------------------------------------
+# 6. Switcher contract.
+# ---------------------------------------------------------------------
+if 'class="switcher"' in page or "class='switcher'" in page:
+    radios = re.findall(r'<input[^>]*class="sw-radio"[^>]*>', page)
+    if len(radios) != 2:
+        bad('A .switcher needs exactly two .sw-radio inputs; found %d.'
+            % len(radios))
+    if not any('checked' in r for r in radios):
+        bad('Neither .sw-radio carries `checked`. Without it the page shows no '
+            'panel at all on first paint.')
+    ids = set(re.findall(r'id="(sw-[ab])"', page))
+    if ids != {'sw-a', 'sw-b'}:
+        bad('The switcher ids are a contract with the stylesheet: exactly '
+            '"sw-a" and "sw-b". Found %s. Rename them and the page silently '
+            'stops switching.' % (sorted(ids) or 'none'))
+    panels = re.findall(r'class="panel panel-[ab]"', page)
+    if len(panels) != 2:
+        bad('Expected two .panel sections to match the switcher; found %d.'
+            % len(panels))
+    titles = re.findall(r'<h2 class="panel-title">', page)
+    if len(titles) != len(panels):
+        bad('Every .panel needs its own <h2 class="panel-title"> INSIDE it. '
+            'Found %d panel(s) and %d title(s). The title is clipped on screen '
+            'and revealed in print; putting it outside the panel lets a '
+            'multi-page printout separate the heading from its steps.'
+            % (len(panels), len(titles)))
+
+for i, r in enumerate(re.findall(r'<input[^>]*class="acc-toggle"[^>]*>', page)):
+    if 'type="checkbox"' not in r:
+        bad('.acc-toggle #%d is not a checkbox.' % (i + 1))
+acc_ids = re.findall(r'<input[^>]*class="acc-toggle"[^>]*id="([^"]+)"', page)
+if len(acc_ids) != len(set(acc_ids)):
+    dupes = sorted(set(x for x in acc_ids if acc_ids.count(x) > 1))
+    bad('Duplicate accordion id(s): %s. Each item needs a unique id or the '
+        'labels toggle the wrong body.' % ', '.join(dupes))
+
+# ---------------------------------------------------------------------
+# 7. Brand attribute.
+# ---------------------------------------------------------------------
+m = re.search(r'<html[^>]*\bdata-brand="([^"]*)"', page)
+if not m:
+    warn('No data-brand on <html>. The page will render as vhc, which is the '
+         ':root default - state it explicitly.')
+elif m.group(1) not in ('vhc', 'bee'):
+    bad('data-brand="%s" is not a brand. Use "vhc" or "bee".' % m.group(1))
+
+# ---------------------------------------------------------------------
+# 8. Fill-in blanks are announced.
+# ---------------------------------------------------------------------
+fillins = len(re.findall(r'\[ VALUE GOES HERE \]', page))
+if fillins:
+    if 'class="admin-note"' not in page:
+        bad('%d fill-in blank(s) but no .admin-note block. The file must not '
+            'be distributable without noticing them.' % fillins)
+    else:
+        note = re.search(r'(?s)<aside class="admin-note".*?</aside>', page)
+        lines = len(re.findall(r'<li\b', note.group(0))) if note else 0
+        if lines < fillins:
+            bad('%d fill-in blank(s) but only %d line(s) in .admin-note. Every '
+                'blank needs its own reminder.' % (fillins, lines))
+if re.search(r'__[A-Z0-9_]+__', page):
+    bad('Unfilled __TOKEN__ survived into the built file: %s'
+        % ', '.join(sorted(set(re.findall(r'__[A-Z0-9_]+__', page)))))
+
+# ---------------------------------------------------------------------
+# 9. Basics that are cheap to check and expensive to miss.
+# ---------------------------------------------------------------------
+if not re.search(r'<meta[^>]*name="viewport"', page, re.I):
+    bad('No viewport meta. The page will render zoomed-out on a phone.')
+if not re.search(r'<html[^>]*\blang=', page, re.I):
+    bad('No lang attribute on <html>.')
+for img in re.findall(r'<img\b[^>]*>', page, re.I):
+    if not re.search(r'\balt\s*=', img, re.I):
+        bad('An <img> has no alt attribute.')
+t = re.search(r'<title>(.*?)</title>', page, re.S)
+if not t or not t.group(1).strip():
+    bad('Empty or missing <title>.')
+
+if '<svg class="qr"' in page:
+    if not re.search(r'print-color-adjust', css_clean):
+        bad('A QR is present but print-color-adjust is missing - it may print '
+            'as a blank box.')
+    if re.search(r'<svg class="qr"[^>]*>\s*</svg>', page):
+        bad('The QR <svg> is empty. Generate the path at build time.')
+
+# ---------------------------------------------------------------------
+print('checked: %s (%d bytes)' % (os.path.basename(OUT), len(raw)))
+for w in warns:
+    print('WARN  : %s' % w)
+if fail:
+    print('\nVERIFY FAILED - %d problem(s):\n' % len(fail))
+    for i, f in enumerate(fail, 1):
+        print('  %d. %s\n' % (i, f))
+    sys.exit(1)
+print('VERIFY PASSED - 0 problems.')
+print('Still outstanding, and the gate cannot do them for you:')
+print('  - the browser pass (CSSOM print audit, 375px reflow, switcher click)')
+if fillins:
+    print('  - %d fill-in blank(s) a person must complete' % fillins)
+if '<svg class="qr"' in page:
+    print('  - scan a PRINTED copy of the QR, not a screen')

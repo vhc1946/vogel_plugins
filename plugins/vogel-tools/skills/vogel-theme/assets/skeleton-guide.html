@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" data-brand="vhc">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+__CSS__
+</style>
+</head>
+<body>
+
+<!-- This file is a GALLERY, not a template to fill in wholesale. Copy it
+     out, delete every component you do not need, then build. -->
+
+<div class="page page--narrow">
+
+  <header class="masthead">
+    <div class="masthead-brand">
+      <img class="masthead-logo masthead-logo--mark" src="__LOGO_SRC__" alt="Vogel Heating and Cooling">
+      <div class="masthead-titles">
+        <h1 class="masthead-title">__HEADING__</h1>
+        <div class="masthead-sub">__SUBHEAD__</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="body-pad">
+
+    <!-- ADMIN NOTE - screen only. One line per .fillin below. Delete the
+         whole block if the page has no fill-in blanks. -->
+    <aside class="admin-note">
+      <strong>Before you hand this out:</strong>
+      <ul>
+        <li>__ADMIN_ITEM_1__</li>
+      </ul>
+    </aside>
+
+    <p class="intro">__INTRO__</p>
+
+    <!-- TWO-WAY SWITCHER - zero JavaScript.
+         The radios are FLAT SIBLINGS of the panels and come BEFORE them,
+         so `:checked ~ .panel-a` can reach them. One radio carries
+         `checked` so the page is correct on first paint. Do not nest the
+         radios inside the fieldset markup below - move them and it stops
+         working. Delete all of this if there is no either/or axis. -->
+
+    <input class="sw-radio" type="radio" name="sw" id="sw-a" checked>
+    <input class="sw-radio" type="radio" name="sw" id="sw-b">
+
+    <fieldset class="switcher">
+      <legend>__SWITCHER_QUESTION__</legend>
+      <div class="switcher-row">
+        <label class="sw-btn" for="sw-a">__SW_A__<span class="sw-btn-sub">__SW_A_SUB__</span></label>
+        <label class="sw-btn" for="sw-b">__SW_B__<span class="sw-btn-sub">__SW_B_SUB__</span></label>
+      </div>
+    </fieldset>
+
+    <section class="panel panel-a">
+      <!-- The real heading for this panel. Clipped on screen, revealed in
+           print. It lives INSIDE the panel so a multi-page printout can
+           never separate it from the steps it labels. -->
+      <h2 class="panel-title">__SW_A__</h2>
+
+      <div class="step">
+        <div class="step-head">
+          <span class="step-num">1</span>
+          <h3 class="step-title">__A_STEP1_TITLE__</h3>
+        </div>
+        <div class="step-body">
+          <p>__A_STEP1_BODY__ Tap <span class="ui">__A_STEP1_UI__</span> to continue.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head">
+          <span class="step-num">2</span>
+          <h3 class="step-title">__A_STEP2_TITLE__</h3>
+        </div>
+        <div class="step-body">
+          <p>__A_STEP2_BODY__</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-b">
+      <h2 class="panel-title">__SW_B__</h2>
+
+      <div class="step">
+        <div class="step-head">
+          <span class="step-num">1</span>
+          <h3 class="step-title">__B_STEP1_TITLE__</h3>
+        </div>
+        <div class="step-body">
+          <p>__B_STEP1_BODY__</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- If there is no switcher, panels and panel-titles go too - just
+         emit .step cards directly under a .section-title. -->
+
+    <h2 class="section-title">__SECTION_2__</h2>
+
+    <!-- A card that is not a numbered step: navy rule instead of brand. -->
+    <div class="step step--alt">
+      <div class="step-head">
+        <span class="step-num">i</span>
+        <h3 class="step-title">__ALT_TITLE__</h3>
+      </div>
+      <div class="step-body">
+        <p>__ALT_BODY__</p>
+      </div>
+    </div>
+
+    <!-- CALLOUTS. .warn is consequences - it stays red in both brands.
+         .tip is helpful but not load-bearing. -->
+    <div class="warn">
+      <span class="warn-label">Do not skip</span>
+      __WARN_BODY__
+    </div>
+
+    <div class="tip">
+      <span class="tip-label">Tip</span>
+      __TIP_BODY__
+    </div>
+
+    <!-- FILL-IN BLANK. Square brackets, never a __TOKEN__ - the build
+         gate rejects unfilled tokens, and this is meant to survive the
+         build and be filled in by a person. Every one of these needs a
+         matching line in .admin-note above. -->
+    <div class="fillin">
+      <span class="fillin-label">__FILLIN_LABEL__</span>
+      <span class="fillin-value">[ VALUE GOES HERE ]</span>
+      <span class="fillin-hint">__FILLIN_HINT__</span>
+    </div>
+
+    <!-- ACTION BLOCK. The button and the URL as printable text, because a
+         printed page cannot be clicked. Never reproduce App Store or
+         Google Play badges - they are trademarked assets. -->
+    <div class="action-row">
+      <a class="btn" href="__ACTION_URL__">__ACTION_LABEL__</a>
+      <span class="btn-url">__ACTION_URL__</span>
+    </div>
+
+    <!-- DATA TABLE. Always inside .tbl-scroll so it scrolls sideways on a
+         phone instead of forcing the whole page to. -->
+    <div class="tbl-scroll">
+      <table class="data">
+        <thead>
+          <tr><th>__T_COL1__</th><th>__T_COL2__</th><th>__T_COL3__</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>__T_R1C1__</td><td>__T_R1C2__</td><td>__T_R1C3__</td></tr>
+          <tr><td>__T_R2C1__</td><td>__T_R2C2__</td><td>__T_R2C3__</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ACCORDION - zero JavaScript. Checkbox, then label, then body, all
+         flat siblings with unique ids. Printing reveals every answer with
+         no override, because the hiding lives in @media screen. -->
+    <h2 class="section-title">__FAQ_TITLE__</h2>
+
+    <div class="acc-item">
+      <input class="acc-toggle" type="checkbox" id="acc-1">
+      <label class="acc-q" for="acc-1">__Q1__<span class="acc-chevron">&#9660;</span></label>
+      <div class="acc-a">__A1__</div>
+    </div>
+
+    <div class="acc-item">
+      <input class="acc-toggle" type="checkbox" id="acc-2">
+      <label class="acc-q" for="acc-2">__Q2__<span class="acc-chevron">&#9660;</span></label>
+      <div class="acc-a">__A2__</div>
+    </div>
+
+    <!-- QR - only if the page is meant to be printed and scanned.
+         Generated at build time so the page stays offline. See SKILL.md;
+         verifying it has two traps that will bite. -->
+    <div class="qr-box">
+      <svg class="qr" viewBox="0 0 45 45" role="img" aria-label="__QR_ALT__">__QR_PATH__</svg>
+      <div class="qr-cap">__QR_CAPTION__</div>
+    </div>
+
+    <section class="help">
+      <div class="help-title">__HELP_TITLE__</div>
+      <p>__HELP_BODY__</p>
+    </section>
+
+  </div>
+
+  <div class="footer-accent"></div>
+  <footer class="footer">
+    <span>__FOOTER_LEFT__</span>
+    <span>__FOOTER_RIGHT__</span>
+  </footer>
+
+</div>
+
+<!-- Everything above is hiding-free except .row-meta, .switcher panels
+     and .acc-a, and every one of those is hidden inside @media screen.
+     If you add a component, hide it in @media screen too - never bare.
+     Printing must reveal all content with no override. -->
+
+</body>
+</html>

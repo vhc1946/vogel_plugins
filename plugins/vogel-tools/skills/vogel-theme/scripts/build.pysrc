@@ -1,0 +1,116 @@
+# =====================================================================
+# vogel-theme build
+#
+# Run inline. Set these before the script body, then cat this file in:
+#
+#   python -c "
+#   SKILL = r'<the vogel-theme skill folder>'
+#   PAGE  = r'<working .html copied from a skeleton>'
+#   OUT   = r'<path to write>'
+#   BRAND = 'vhc'                     # or 'bee'
+#   LOGO  = 'wordmark-white'          # v-mark | wordmark-white
+#                                     # wordmark-color | bee | None
+#   SUBS  = {'__TITLE__': '...', '__HEADING__': '...'}
+#   $(cat "$SKILL/scripts/build.pysrc")"
+#
+# It inlines the stylesheet, base64s the logo, substitutes every token,
+# and REFUSES TO WRITE if any __TOKEN__ is left unfilled.
+# =====================================================================
+import base64, io, os, re, sys
+
+LOGO_FILES = {
+    'v-mark':          'v-mark.png',
+    'wordmark-white':  'vogel-wordmark-white.png',
+    'wordmark-color':  'vogel-wordmark-color.png',
+    'bee':             'bee-logo-color.png',
+}
+
+try:
+    BRAND
+except NameError:
+    BRAND = 'vhc'
+try:
+    LOGO
+except NameError:
+    LOGO = 'wordmark-white'
+try:
+    SUBS
+except NameError:
+    SUBS = {}
+
+if BRAND not in ('vhc', 'bee'):
+    sys.exit("BUILD FAILED: BRAND must be 'vhc' or 'bee', got %r" % (BRAND,))
+
+page = io.open(PAGE, encoding='utf-8').read()
+
+# ---- 1. inline the stylesheet -------------------------------------------
+css_path = os.path.join(SKILL, 'assets', 'vogel-theme.css')
+css = io.open(css_path, encoding='utf-8').read()
+if '__CSS__' not in page:
+    sys.exit('BUILD FAILED: no __CSS__ placeholder in %s. The stylesheet is '
+             'always inlined, never linked.' % PAGE)
+# Substitute via a function so a literal backslash in the CSS is not read
+# as a regex escape by re.sub, and so str.replace cannot be fooled either.
+page = page.replace('__CSS__', css)
+
+# ---- 2. base64 the logo -------------------------------------------------
+if LOGO:
+    if LOGO not in LOGO_FILES:
+        sys.exit('BUILD FAILED: LOGO must be one of %s, or None. Got %r'
+                 % (', '.join(sorted(LOGO_FILES)), LOGO))
+    logo_path = os.path.join(SKILL, 'assets', LOGO_FILES[LOGO])
+    if not os.path.exists(logo_path):
+        sys.exit('BUILD FAILED: logo asset missing: %s' % logo_path)
+    blob = base64.b64encode(io.open(logo_path, 'rb').read()).decode('ascii')
+    page = page.replace('__LOGO_SRC__', 'data:image/png;base64,' + blob)
+    print('logo   : %-22s %6d bytes -> %6d base64'
+          % (LOGO_FILES[LOGO], os.path.getsize(logo_path), len(blob)))
+elif '__LOGO_SRC__' in page:
+    sys.exit('BUILD FAILED: page has a __LOGO_SRC__ placeholder but LOGO is '
+             'None. Either pick a logo or delete the <img> from the page.')
+
+# ---- 3. the brand attribute --------------------------------------------
+page = re.sub(r'(<html\b[^>]*?)\sdata-brand="[^"]*"', r'\1', page, count=1)
+page = re.sub(r'<html\b', '<html data-brand="%s"' % BRAND, page, count=1)
+
+# ---- 4. caller substitutions -------------------------------------------
+for k, v in SUBS.items():
+    if not (k.startswith('__') and k.endswith('__')):
+        sys.exit('BUILD FAILED: SUBS key %r is not a __TOKEN__.' % k)
+    page = page.replace(k, str(v))
+
+# ---- 5. strip authoring comments ---------------------------------------
+# The skeletons are annotated galleries. Those notes are for whoever is
+# building the page, not for the person who receives it, and one of them
+# contains a literal __TOKEN__ as an example - which would trip the gate
+# below if it survived. CSS comments inside <style> use a different
+# syntax and are untouched.
+before = len(page)
+page = re.sub(r'<!--.*?-->', '', page, flags=re.S)
+page = re.sub(r'\n[ \t]*\n[ \t]*\n+', '\n\n', page)
+if before != len(page):
+    print('strip  : %d bytes of authoring comments removed' % (before - len(page)))
+
+# ---- 6. the gate: nothing unfilled ships -------------------------------
+left = sorted(set(re.findall(r'__[A-Z0-9_]+__', page)))
+if left:
+    sys.exit('BUILD FAILED: %d placeholder(s) still unfilled - nothing was '
+             'written.\n  %s\n\nEither pass them in SUBS or delete the markup '
+             'that uses them. A page is a gallery to cut down, not a form to '
+             'fill in wholesale.' % (len(left), '\n  '.join(left)))
+
+# A fill-in blank is NOT a token - it is meant to survive the build and be
+# completed by a person. Count them so the closing message can say so.
+fillins = len(re.findall(r'\[ VALUE GOES HERE \]', page))
+
+io.open(OUT, 'w', encoding='utf-8', newline='\n').write(page)
+
+print('brand  : %s' % BRAND)
+print('css    : %d bytes inlined' % len(css))
+print('subs   : %d token(s) substituted' % len(SUBS))
+print('output : %s (%d bytes)' % (OUT, os.path.getsize(OUT)))
+if fillins:
+    print('NOTE   : %d fill-in blank(s) still say [ VALUE GOES HERE ]. Say so '
+          'to the user - they cannot distribute the file until those are '
+          'filled.' % fillins)
+print('\nNow run verify.pysrc against the output. Do not skip it.')

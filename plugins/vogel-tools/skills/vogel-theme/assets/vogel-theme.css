@@ -1,0 +1,914 @@
+/* =====================================================================
+   VOGEL THEME
+   Inlined into <style> at build time. Never linked.
+
+    1. Design tokens          9. Layout B - callouts
+    2. Brand switch          10. Layout B - switcher (CSS-only)
+    3. Reset and base        11. Layout B - accordion (CSS-only)
+    4. Masthead              12. Layout B - fill-in blanks
+    5. Admin note            13. Layout D - report
+    6. Layout A - ledger     14. Shared - tables, help, footer, QR
+    7. Layout A - mobile     15. Print
+    8. Layout B - steps
+   ===================================================================== */
+
+/* =====================================================================
+   1. DESIGN TOKENS
+   The palette is CLOSED. Every tint, hover, hairline, wash and stripe
+   is rgba() over a palette colour. Adding a colour means adding it to
+   this block AND to PALETTE in verify.pysrc - never inline.
+   ===================================================================== */
+:root {
+  --v-navy:        #0F4577;
+  --v-red:         #CF152D;
+  --v-blue-mid:    #1D679B;
+  --v-blue-bright: #2889C4;
+  --v-blue-pale:   #A7DBFF;
+  --v-ink:         #434343;
+  --v-gray:        #74777D;
+  --v-red-bright:  #FF3E23;
+  --v-white:       #FFFFFF;
+  --v-black:       #000000;
+
+  --v-navy-rgb:        15, 69, 119;
+  --v-red-rgb:         207, 21, 45;
+  --v-blue-mid-rgb:    29, 103, 155;
+  --v-blue-bright-rgb: 40, 137, 196;
+  --v-blue-pale-rgb:   167, 219, 255;
+  --v-ink-rgb:         67, 67, 67;
+  --v-gray-rgb:        116, 119, 125;
+  --v-red-bright-rgb:  255, 62, 35;
+
+  /* Barlow Condensed carries the brand: mastheads, micro-labels,
+     badges, numerals. IBM Plex Sans carries running prose. */
+  --font-display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', system-ui, sans-serif;
+  --font-sans:    'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: 2px;
+  --radius:    3px;
+
+  --shadow-sm: 0 1px 3px rgba(var(--v-navy-rgb), 0.12);
+  --shadow:    0 2px 10px rgba(var(--v-navy-rgb), 0.18);
+  --shadow-lg: 0 8px 40px rgba(var(--v-navy-rgb), 0.18);
+
+  --wash:      rgba(var(--v-navy-rgb), 0.14);
+  --rule:      rgba(var(--v-navy-rgb), 0.12);
+  --row-tint:  rgba(var(--v-blue-pale-rgb), 0.28);
+  --row-hover: rgba(var(--v-blue-bright-rgb), 0.14);
+}
+
+/* =====================================================================
+   2. BRAND SWITCH
+   <html data-brand="vhc"> or <html data-brand="bee">.
+   Navy stays the masthead surface in BOTH brands - only the accent
+   moves. --brand-accent is a FILL that carries white text, so it must
+   clear 4.5:1 against white; --brand-rule is a hairline/stripe only and
+   is never a text background.
+   ===================================================================== */
+:root,
+[data-brand="vhc"] {
+  --brand-accent:     var(--v-red);          /* white on this: 5.53:1 */
+  --brand-accent-rgb: var(--v-red-rgb);
+  --brand-hover:      var(--v-red-bright);
+  --brand-rule:       var(--v-red);
+  --brand-tint:       rgba(var(--v-red-rgb), 0.06);
+}
+
+[data-brand="bee"] {
+  --brand-accent:     var(--v-blue-mid);     /* white on this: 6.06:1 */
+  --brand-accent-rgb: var(--v-blue-mid-rgb);
+  --brand-hover:      var(--v-blue-bright);
+  --brand-rule:       var(--v-blue-bright);  /* stripe only, never text bg */
+  --brand-tint:       rgba(var(--v-blue-bright-rgb), 0.10);
+}
+
+/* =====================================================================
+   3. RESET AND BASE
+   ===================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--v-ink);
+  background: var(--wash);
+  min-height: 100vh;
+  padding: 24px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--v-navy); }
+a:hover, a:focus { color: var(--brand-accent); }
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  background: var(--v-white);
+  box-shadow: var(--shadow-lg);
+}
+.page--narrow { max-width: 860px; }
+
+.body-pad { padding: 22px clamp(16px, 4vw, 40px) 30px; }
+
+p { margin: 0 0 12px; }
+p:last-child { margin-bottom: 0; }
+
+.intro { font-size: 16px; margin: 0 0 18px; }
+
+/* A label the reader must find on screen. */
+.ui {
+  background: rgba(var(--v-blue-pale-rgb), 0.45);
+  border: 1px solid rgba(var(--v-navy-rgb), 0.22);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  font-weight: 600;
+  color: var(--v-navy);
+  white-space: nowrap;
+}
+
+/* Text the reader must type exactly. */
+code.mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: rgba(var(--v-navy-rgb), 0.06);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  padding: 1px 5px;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Condensed micro-label. --v-gray is 4.49:1 on white and does NOT clear
+   AA for body text - it is only ever used here, on labels whose content
+   is repeated in the adjacent value. */
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--v-gray);
+}
+
+/* =====================================================================
+   4. MASTHEAD
+   Navy block, brand-coloured stripe top and bottom, base64 logo.
+   ===================================================================== */
+.masthead-accent { height: 6px; background: var(--brand-rule); }
+
+.masthead {
+  background: var(--v-navy);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px clamp(16px, 4vw, 40px) 20px;
+  flex-wrap: wrap;
+  border-bottom: 4px solid var(--brand-rule);
+}
+
+/* The ledger puts a .masthead-fade gradient directly after the masthead
+   instead of a flat stripe. CSS cannot reach backwards to a previous
+   sibling, so the masthead has to opt out of its own border explicitly -
+   without this modifier you get the 4px stripe AND the 3px gradient
+   stacked, which reads as a rendering bug. */
+.masthead--faded { border-bottom: 0; }
+
+.masthead-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+
+.masthead-logo { height: 46px; width: auto; flex: 0 0 auto; display: block; }
+.masthead-logo--mark { height: 52px; }
+
+.masthead-titles { min-width: 0; }
+
+.masthead-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.masthead-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 2vw + 18px, 42px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+  color: var(--v-white);
+}
+.masthead-title em { font-style: normal; color: var(--brand-rule); }
+
+.masthead-sub {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 2px;
+}
+
+.masthead-right { text-align: right; }
+
+.masthead-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 4px;
+}
+
+.masthead-badge {
+  display: inline-block;
+  background: var(--brand-accent);
+  color: var(--v-white);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 14px 3px;
+}
+
+.masthead-fade {
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--brand-rule) 0%,
+    var(--brand-rule) 40%,
+    rgba(255, 255, 255, 0.08) 100%);
+}
+
+/* =====================================================================
+   5. ADMIN NOTE - screen only, fill-in reminder before distributing
+   ===================================================================== */
+.admin-note {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  background: rgba(var(--v-red-rgb), 0.06);
+  border: 1px dashed var(--v-red);
+  font-size: 14px;
+}
+.admin-note strong { color: var(--v-red); }
+.admin-note ul { margin: 8px 0 0; padding-left: 20px; }
+.admin-note li { margin: 3px 0; }
+
+/* =====================================================================
+   6. LAYOUT A - LEDGER
+   Dense rows. A page sets --cols once; the grid, the column headers and
+   the print rules all read it, so there is one source of truth.
+   ===================================================================== */
+.ledger { --cols: 34px 1fr 1fr 110px; }
+
+.ledger-head {
+  display: grid;
+  grid-template-columns: var(--cols);
+  background: var(--v-navy);
+  border-bottom: 2px solid var(--brand-rule);
+  padding: 0 16px;
+}
+.ledger-head span {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.60);
+  padding: 8px 8px 6px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: var(--cols);
+  align-items: center;
+  min-height: 38px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--rule);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+/* :nth-of-type counts siblings of the same ELEMENT type, so the column
+   header must not be a <div> or it shifts the zebra by one and the first
+   data row comes out tinted. The skeleton uses <header class="ledger-head">
+   for exactly this reason - keep it. */
+.row:nth-of-type(even) { background: var(--row-tint); }
+.row:hover { background: var(--row-hover); }
+.row--divider { border-bottom: 2px solid var(--brand-rule); }
+
+.row > * { padding: 6px 8px; }
+
+.row-num {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(var(--v-navy-rgb), 0.45);
+  text-align: right;
+  padding-right: 4px;
+}
+
+.cell-key {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--v-navy);
+}
+.cell-key--muted {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--v-ink);
+}
+
+.cell { font-size: 13px; color: var(--v-ink); min-width: 0; }
+.cell a { text-decoration: none; }
+.cell a:hover { text-decoration: underline; }
+.cell--clip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cell-num {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--v-navy);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--brand-accent);
+  color: var(--v-white);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 8px 1px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+.badge--quiet {
+  background: rgba(var(--v-blue-pale-rgb), 0.55);
+  color: var(--v-navy);
+}
+
+.empty { color: rgba(var(--v-gray-rgb), 0.55); font-size: 12px; }
+
+/* The mobile-only restatement of the cells the grid drops. It is
+   DUPLICATE content, so it is the one thing this theme hides - and the
+   hiding is scoped to @media screen and @media print separately, never
+   written bare, so the "nothing hidden outside a media block" invariant
+   in section 15 still holds. */
+@media screen { .row-meta { display: none; } }
+
+/* =====================================================================
+   7. LAYOUT A - MOBILE
+   Rows become cards. All of this hiding lives in @media screen, so the
+   print context never sees it and needs no override.
+   ===================================================================== */
+@media screen and (max-width: 720px) {
+  body { padding: 0; }
+  .page { box-shadow: none; }
+  .masthead { padding: 14px 16px 12px; }
+  .masthead-title { font-size: 30px; }
+  .masthead-sub { font-size: 11px; letter-spacing: 2px; }
+
+  .ledger-head { display: none; }
+
+  .row {
+    display: block;
+    position: relative;
+    padding: 11px 14px 10px;
+    min-height: 0;
+  }
+  .row > .cell-hide-sm { display: none; }
+  .row > * { padding: 0; }
+
+  .row-num {
+    position: absolute;
+    top: 10px; right: 12px;
+    color: rgba(var(--v-navy-rgb), 0.35);
+  }
+  .cell-key { font-size: 19px; padding: 0 28px 4px 0; }
+  .cell { padding: 2px 0 4px; }
+  .cell--clip { white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; }
+
+  .row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    margin-top: 2px;
+  }
+  .row-meta > * { padding: 3px 0; }
+  .meta-label {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(var(--v-navy-rgb), 0.55);
+    margin-right: 4px;
+  }
+}
+
+/* =====================================================================
+   8. LAYOUT B - NUMBERED STEP CARDS
+   ===================================================================== */
+.step {
+  background: var(--v-white);
+  border-left: 4px solid var(--brand-accent);
+  box-shadow: var(--shadow-sm);
+  margin: 0 0 12px;
+  border-radius: 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.step--alt { border-left-color: var(--v-navy); }
+
+.step-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px 4px; }
+
+.step-num {
+  flex: 0 0 auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--brand-accent);
+  color: var(--v-white);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step--alt .step-num { background: var(--v-navy); }
+
+.step-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--v-navy);
+}
+
+.step-body { padding: 0 16px 14px 56px; font-size: 14.5px; }
+.step-body ul, .step-body ol { margin: 6px 0 0; padding-left: 20px; }
+.step-body li { margin: 3px 0; }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--v-ink);
+  border-bottom: 2px solid var(--v-navy);
+  padding-bottom: 5px;
+  margin: 26px 0 14px;
+}
+
+/* =====================================================================
+   9. LAYOUT B - CALLOUTS
+   .warn is ALWAYS red in both brands - it is a semantic role, not a
+   brand accent, so it must not move when data-brand changes.
+   ===================================================================== */
+.warn, .tip {
+  padding: 11px 14px;
+  margin: 0 0 12px;
+  font-size: 14.5px;
+  border-radius: 0;
+  break-inside: avoid;
+}
+.warn {
+  background: rgba(var(--v-red-rgb), 0.06);
+  border: 1px solid var(--v-red);
+  border-left: 4px solid var(--v-red);
+}
+.tip {
+  background: rgba(var(--v-blue-pale-rgb), 0.35);
+  border: 1px solid var(--v-blue-bright);
+  border-left: 4px solid var(--v-blue-mid);
+}
+.warn-label, .tip-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.warn-label { color: var(--v-red); }
+.tip-label  { color: var(--v-navy); }
+
+/* =====================================================================
+   10. LAYOUT B - TWO-WAY SWITCHER (radio group, zero JavaScript)
+   The radios are FLAT SIBLINGS of the panels and appear BEFORE them,
+   so `:checked ~` can reach them. One option carries `checked` in the
+   markup so the page is correct on first paint. They are clipped, not
+   display:none, so they stay keyboard-focusable and keep native
+   arrow-key navigation.
+   ===================================================================== */
+.sw-radio {
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+.switcher {
+  background: var(--v-navy);
+  padding: 16px;
+  margin: 22px 0 18px;
+  border: 0;
+  box-shadow: var(--shadow);
+}
+/* A <legend> is not a normal block: by default it is laid out in the gap
+   of the fieldset's own border, which puts it half outside the navy
+   panel and renders navy-on-white where it overlaps. `float: left` with
+   a full width is the one treatment that makes every engine lay it out
+   as an ordinary first child; the ::after clears the float so the button
+   row does not ride up beside it. Do not "fix" this with margin. */
+.switcher legend {
+  float: left;
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--v-white);
+  padding: 0 0 10px;
+}
+.switcher::after { content: ''; display: table; clear: both; }
+/* `clear: both` is load-bearing, not tidiness: the floated legend above
+   shortens this flex container's line box, which pushes every button off
+   the right edge of the panel. Remove the clear and the buttons vanish. */
+.switcher-row { clear: both; display: flex; gap: 12px; flex-wrap: wrap; }
+
+.sw-btn {
+  flex: 1 1 180px;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 2px solid rgba(255, 255, 255, 0.40);
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--v-white);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: background .12s ease, border-color .12s ease;
+}
+.sw-btn:hover { background: rgba(255, 255, 255, 0.22); }
+.sw-btn-sub {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+.sw-radio:focus-visible + .sw-btn { outline: 3px solid var(--v-blue-pale); outline-offset: 2px; }
+
+/* The show/hide itself. ALL of it lives in @media screen, so the print
+   context never hides a panel and needs no override - printing reveals
+   BOTH panels with nothing added to section 15.
+
+   The ids are a contract, not a suggestion: the theme expects exactly
+   `sw-a` and `sw-b`, as flat siblings of `.panel-a` / `.panel-b` and
+   before them in document order. Rename them and the switcher silently
+   stops switching - the page still renders, just always showing panel A. */
+@media screen {
+  .panel { display: none; }
+  #sw-a:checked ~ .panel-a { display: block; }
+  #sw-b:checked ~ .panel-b { display: block; }
+}
+
+/* On a phone the two big buttons stack rather than squeezing. */
+@media screen and (max-width: 520px) {
+  .sw-btn { flex: 1 1 100%; }
+}
+
+/* The real <h2> for each panel: clipped on screen, revealed in print.
+   One node, no duplication drift, and it gives screen-reader users
+   heading navigation the switcher buttons do not provide. */
+.panel-title {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* =====================================================================
+   11. LAYOUT B - ACCORDION (checkboxes, zero JavaScript)
+   Checkbox, then label, then body - all flat siblings, unique ids.
+   ===================================================================== */
+.acc-item { border-bottom: 1px solid var(--rule); }
+.acc-toggle { position: absolute; width: 1px; height: 1px; opacity: 0; margin: 0; pointer-events: none; }
+
+.acc-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 4px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--v-navy);
+}
+.acc-q:hover { color: var(--brand-accent); }
+.acc-toggle:focus-visible + .acc-q { outline: 3px solid var(--v-blue-pale); outline-offset: 2px; }
+
+.acc-chevron {
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--brand-accent);
+  transition: transform .15s ease;
+}
+.acc-toggle:checked + .acc-q .acc-chevron { transform: rotate(180deg); }
+
+.acc-a { padding: 0 4px 14px; font-size: 14.5px; }
+
+/* Same discipline as the switcher: hidden only in @media screen, so the
+   printout carries every answer with no override. */
+@media screen {
+  .acc-a { display: none; }
+  .acc-toggle:checked ~ .acc-a { display: block; }
+}
+
+/* =====================================================================
+   12. LAYOUT B - FILL-IN BLANKS
+   A value someone must supply before distributing. Always paired with
+   a line in .admin-note.
+   ===================================================================== */
+.fillin {
+  border: 2px dashed var(--v-red);
+  background: rgba(var(--v-red-rgb), 0.04);
+  padding: 12px 14px;
+  margin: 0 0 12px;
+}
+.fillin-label {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--v-red);
+  display: block;
+  margin-bottom: 4px;
+}
+.fillin-value { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--v-navy); }
+.fillin-hint  { display: block; font-size: 13px; color: var(--v-ink); margin-top: 4px; }
+
+/* =====================================================================
+   13. LAYOUT D - REPORT
+   Light page, blue ramp across the tiles, brand accent reserved for the
+   one figure that needs attention.
+   ===================================================================== */
+.report { background: rgba(var(--v-navy-rgb), 0.03); }
+
+.report-head {
+  background: var(--v-white);
+  border-bottom: 1px solid var(--rule);
+  padding: 18px clamp(16px, 4vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.report-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 1.5vw + 16px, 30px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--v-navy);
+}
+
+.tiles { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 20px; }
+
+.tile {
+  flex: 1 1 140px;
+  background: var(--v-white);
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--v-navy);
+  padding: 12px 14px;
+  break-inside: avoid;
+}
+.tile-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--v-gray);
+}
+.tile-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--v-navy);
+}
+.tile-note { font-size: 12.5px; color: var(--v-ink); margin-top: 2px; }
+
+/* Ramp variants. The value colour tracks the rule colour, except on
+   --v-blue-pale and --v-red-bright, which are fills only and would not
+   clear 4.5:1 as text - those keep navy text. */
+.tile--2 { border-top-color: var(--v-blue-mid); }
+.tile--2 .tile-value { color: var(--v-blue-mid); }
+.tile--3 { border-top-color: var(--v-blue-bright); }
+.tile--4 { border-top-color: var(--v-blue-pale); }
+.tile--flag { border-top-color: var(--v-red); }
+.tile--flag .tile-value { color: var(--v-red); }
+
+/* CSS-only bars. Each bar sets --h inline: style="--h: 72%". */
+.bars { display: flex; align-items: flex-end; gap: 10px; height: 110px; }
+.bar { flex: 1; height: var(--h, 50%); background: var(--v-navy); min-width: 8px; }
+.bar--2 { background: var(--v-blue-mid); }
+.bar--3 { background: var(--v-blue-bright); }
+.bar--4 { background: var(--v-blue-pale); }
+.bar--flag { background: var(--v-red); }
+
+.bar-labels {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--v-gray);
+}
+.bar-labels > * { flex: 1; text-align: center; }
+
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; margin-top: 10px; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 12px; height: 12px; flex: 0 0 auto; }
+
+/* =====================================================================
+   14. SHARED - TABLES, ACTION BLOCK, QR, HELP, FOOTER
+   ===================================================================== */
+/* Always wrapped: the table scrolls sideways on a phone instead of
+   forcing the whole page to. */
+.tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 0 16px; }
+
+table.data { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+table.data th {
+  background: var(--v-navy);
+  color: var(--v-white);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+table.data td { padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.data tbody tr:nth-child(even) { background: var(--row-tint); }
+
+.action-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 0 0 16px; }
+.btn {
+  display: inline-block;
+  background: var(--brand-accent);
+  color: var(--v-white);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 22px 9px;
+  text-decoration: none;
+}
+.btn:hover { background: var(--brand-hover); color: var(--v-white); }
+.btn-url { font-family: var(--font-mono); font-size: 12.5px; color: var(--v-ink); word-break: break-all; }
+
+.qr-box { text-align: center; break-inside: avoid; margin: 0 0 16px; }
+.qr {
+  width: 30mm; height: 30mm;
+  padding: 4mm;
+  background: var(--v-white);
+  display: block;
+  margin: 0 auto;
+  shape-rendering: crispEdges;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.qr-cap {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--v-gray);
+  margin-top: 4px;
+}
+
+.help {
+  background: var(--v-navy);
+  color: var(--v-white);
+  padding: 16px 18px;
+  margin: 22px 0 0;
+  break-inside: avoid;
+}
+.help a { color: var(--v-blue-pale); }
+.help-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.footer-accent { height: 4px; background: var(--brand-rule); }
+.footer {
+  background: var(--v-navy);
+  padding: 13px clamp(16px, 4vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.50);
+}
+.footer strong {
+  color: var(--brand-rule);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* =====================================================================
+   15. PRINT
+   Nothing is hidden outside @media screen, so printing reveals every
+   switcher panel and every accordion answer with NO override here.
+   This block only ever HIDES interactive chrome and restores the grid.
+   ===================================================================== */
+@page { margin: 0.45in 0.4in; }
+
+@media print {
+  body {
+    background: transparent;
+    padding: 0;
+    font-size: 11pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page { box-shadow: none; max-width: 100%; }
+
+  .switcher, .acc-chevron, .admin-note, .btn { display: none; }
+  .row-meta { display: none; }
+
+  .panel-title {
+    position: static;
+    width: auto; height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--v-navy);
+    border-bottom: 2px solid var(--brand-rule);
+    padding-bottom: 4px;
+    margin: 18px 0 12px;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .ledger-head { break-after: avoid; page-break-after: avoid; }
+  .masthead, .footer, .help { break-inside: avoid; page-break-inside: avoid; }
+
+  .acc-q { cursor: auto; padding-bottom: 4px; }
+
+  a { text-decoration: none; }
+  .cell a, .cell-num { color: var(--v-navy); }
+}

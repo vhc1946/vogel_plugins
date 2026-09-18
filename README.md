@@ -14,12 +14,19 @@ plugins/
     .claude-plugin/plugin.json
     skills/
       vhp-query/SKILL.md         one folder per skill
+      vogel-theme/
+        SKILL.md
+        assets/                  stylesheet, skeletons, logo PNGs
+        references/              palette, docx and Artifact guidance
+        scripts/                 build and verify (.pysrc, run inline)
 ```
+
+A skill folder may carry `assets/`, `references/` and `scripts/` alongside its
+`SKILL.md`. `claude plugin validate` checks the manifest, paths and component
+locations; it does not object to extra folders or to binary files.
 
 One plugin, many skills. Adding a skill later does not make managers install
 anything new.
-
-## TEST TO SEE IF CHANGE SYNCS
 
 ## For managers - one-time setup
 

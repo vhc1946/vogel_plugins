@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-brand="vhc">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+__CSS__
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="masthead-accent"></div>
+  <header class="masthead masthead--faded">
+    <div class="masthead-brand">
+      <img class="masthead-logo" src="__LOGO_SRC__" alt="Vogel Heating and Cooling">
+      <div class="masthead-titles">
+        <div class="masthead-eyebrow">__EYEBROW__</div>
+        <h1 class="masthead-title">__HEADING__</h1>
+        <div class="masthead-sub">__SUBHEAD__</div>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <div class="masthead-label">__BADGE_LABEL__</div>
+      <div class="masthead-badge">__BADGE__</div>
+    </div>
+  </header>
+  <div class="masthead-fade"></div>
+
+  <!-- LEDGER
+       Set --cols ONCE on .ledger. The column headers, every row and the
+       print rules all read it, so there is one source of truth for the
+       grid. Column count and widths are the only thing to change.
+
+       Each row repeats, in order:
+         .row-num        the ordinal
+         .cell-key       the thing being looked up (bold, condensed, navy)
+         .cell           free columns
+         .cell-hide-sm   columns that collapse into .row-meta on a phone
+         .row-meta       the mobile-only restatement of those columns
+
+       .row-meta is duplicate content - it is the one thing this theme
+       hides, and it is hidden separately in @media screen and @media
+       print so the "nothing hidden outside a media block" rule holds. -->
+
+  <main class="ledger" style="--cols: 34px 200px 1fr 140px 90px;">
+
+    <header class="ledger-head">
+      <span></span>
+      <span>__COL_1__</span>
+      <span>__COL_2__</span>
+      <span>__COL_3__</span>
+      <span>__COL_4__</span>
+    </header>
+
+    <div class="row">
+      <div class="row-num">1</div>
+      <div class="cell-key">__R1_KEY__</div>
+      <div class="cell cell--clip"><a href="mailto:__R1_EMAIL__">__R1_EMAIL__</a></div>
+      <div class="cell cell-hide-sm"><a class="cell-num" href="tel:__R1_PHONE_RAW__">__R1_PHONE__</a></div>
+      <div class="cell cell-hide-sm"><span class="badge">__R1_EXT__</span></div>
+      <div class="row-meta">
+        <div><span class="meta-label">Direct</span><a class="cell-num" href="tel:__R1_PHONE_RAW__">__R1_PHONE__</a></div>
+        <div><span class="badge">__R1_EXT__</span></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row-num">2</div>
+      <div class="cell-key">__R2_KEY__</div>
+      <div class="cell cell--clip"><a href="mailto:__R2_EMAIL__">__R2_EMAIL__</a></div>
+      <div class="cell cell-hide-sm"><span class="empty">&mdash;</span></div>
+      <div class="cell cell-hide-sm"><span class="badge badge--quiet">__R2_EXT__</span></div>
+      <div class="row-meta">
+        <div><span class="meta-label">Direct</span><span class="empty">&mdash;</span></div>
+        <div><span class="badge badge--quiet">__R2_EXT__</span></div>
+      </div>
+    </div>
+
+    <!-- A row that closes a group: heavier brand-coloured rule beneath. -->
+    <div class="row row--divider">
+      <div class="row-num">3</div>
+      <div class="cell-key cell-key--muted">__R3_KEY__</div>
+      <div class="cell cell--clip"><a href="mailto:__R3_EMAIL__">__R3_EMAIL__</a></div>
+      <div class="cell cell-hide-sm"><a class="cell-num" href="tel:__R3_PHONE_RAW__">__R3_PHONE__</a></div>
+      <div class="cell cell-hide-sm"><span class="empty">&mdash;</span></div>
+      <div class="row-meta">
+        <div><span class="meta-label">Direct</span><a class="cell-num" href="tel:__R3_PHONE_RAW__">__R3_PHONE__</a></div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="footer-accent"></div>
+  <footer class="footer">
+    <span>__FOOTER_LEFT__</span>
+    <span><strong>__COUNT__</strong>__COUNT_NOUN__</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

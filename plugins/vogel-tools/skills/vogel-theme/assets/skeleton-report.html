@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-brand="vhc">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+__CSS__
+</style>
+</head>
+<body>
+
+<div class="page report">
+
+  <!-- The report head is white, not navy - this layout is deliberately
+       lighter than the other two. The navy masthead is still available
+       if the report is a cover-page document rather than a dashboard. -->
+  <header class="report-head">
+    <div class="masthead-brand">
+      <img class="masthead-logo" src="__LOGO_SRC__" alt="Vogel Heating and Cooling">
+      <div class="masthead-titles">
+        <h1 class="report-title">__HEADING__</h1>
+        <div class="eyebrow">__PERIOD__</div>
+      </div>
+    </div>
+    <span class="badge badge--quiet">__STATUS__</span>
+  </header>
+
+  <main class="body-pad">
+
+    <!-- STAT TILES. The ramp runs navy -> blue-mid -> blue-bright ->
+         blue-pale, in that order, and .tile--flag (red) is reserved for
+         the one figure that needs attention. If everything is flagged,
+         nothing is.
+
+         .tile--3 and .tile--4 keep NAVY value text: blue-bright is
+         3.84:1 on white and blue-pale is 1.48:1, so neither can carry a
+         number. Only the 3px top rule takes the ramp colour. -->
+    <div class="tiles">
+      <div class="tile">
+        <div class="tile-label">__TILE1_LABEL__</div>
+        <div class="tile-value">__TILE1_VALUE__</div>
+        <div class="tile-note">__TILE1_NOTE__</div>
+      </div>
+      <div class="tile tile--2">
+        <div class="tile-label">__TILE2_LABEL__</div>
+        <div class="tile-value">__TILE2_VALUE__</div>
+        <div class="tile-note">__TILE2_NOTE__</div>
+      </div>
+      <div class="tile tile--3">
+        <div class="tile-label">__TILE3_LABEL__</div>
+        <div class="tile-value">__TILE3_VALUE__</div>
+        <div class="tile-note">__TILE3_NOTE__</div>
+      </div>
+      <div class="tile tile--flag">
+        <div class="tile-label">__TILE4_LABEL__</div>
+        <div class="tile-value">__TILE4_VALUE__</div>
+        <div class="tile-note">__TILE4_NOTE__</div>
+      </div>
+    </div>
+
+    <!-- CSS-ONLY BAR CHART. Each bar sets its own height inline:
+         style="--h: 72%". No JavaScript, no chart library, prints as-is.
+         Good for one series of 4-12 values. Anything more complex than
+         that is a table, not a bar chart - say so rather than forcing it.
+
+         The <figure> carries the accessible description, because the
+         bars themselves are empty divs with nothing for a screen reader
+         to read. -->
+    <h2 class="section-title">__CHART_TITLE__</h2>
+
+    <figure>
+      <figcaption class="sr-only">__CHART_DESCRIPTION__</figcaption>
+      <div class="bars" role="img" aria-label="__CHART_DESCRIPTION__">
+        <div class="bar"          style="--h: __B1__%"></div>
+        <div class="bar bar--2"   style="--h: __B2__%"></div>
+        <div class="bar bar--3"   style="--h: __B3__%"></div>
+        <div class="bar bar--4"   style="--h: __B4__%"></div>
+        <div class="bar bar--flag" style="--h: __B5__%"></div>
+      </div>
+      <div class="bar-labels">
+        <span>__BL1__</span>
+        <span>__BL2__</span>
+        <span>__BL3__</span>
+        <span>__BL4__</span>
+        <span>__BL5__</span>
+      </div>
+    </figure>
+
+    <!-- Only include a legend if colour actually encodes something. If
+         the bars are just one series over time, the colours are
+         decorative and a legend is noise - delete this block. -->
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background: var(--v-navy)"></span>__LEGEND_1__</span>
+      <span class="legend-item"><span class="legend-swatch" style="background: var(--v-red)"></span>__LEGEND_2__</span>
+    </div>
+
+    <h2 class="section-title">__TABLE_TITLE__</h2>
+
+    <div class="tbl-scroll">
+      <table class="data">
+        <thead>
+          <tr><th>__T_COL1__</th><th>__T_COL2__</th><th>__T_COL3__</th><th>__T_COL4__</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>__T_R1C1__</td><td>__T_R1C2__</td><td>__T_R1C3__</td><td>__T_R1C4__</td></tr>
+          <tr><td>__T_R2C1__</td><td>__T_R2C2__</td><td>__T_R2C3__</td><td>__T_R2C4__</td></tr>
+          <tr><td>__T_R3C1__</td><td>__T_R3C2__</td><td>__T_R3C3__</td><td>__T_R3C4__</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- A conclusion or a caveat. .tip for context, .warn for a figure
+         that needs action. -->
+    <div class="tip">
+      <span class="tip-label">Note</span>
+      __NOTE_BODY__
+    </div>
+
+  </main>
+
+  <div class="footer-accent"></div>
+  <footer class="footer">
+    <span>__FOOTER_LEFT__</span>
+    <span>__FOOTER_RIGHT__</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
