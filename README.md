@@ -19,6 +19,8 @@ plugins/
 One plugin, many skills. Adding a skill later does not make managers install
 anything new.
 
+## TEST TO SEE IF CHANGE SYNCS
+
 ## For managers - one-time setup
 
 In Claude Code:
